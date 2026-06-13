@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Take Attendance</title>
+</head>
+
+<body>
+
+<h1>AI & DS Attendance</h1>
+
+<form method="POST" action="/save-attendance">
+    <br><br>
+
+<button type="submit">
+    Save Attendance
+</button>
+
+    {% for id, roll_no, name in students %}
+
+    <div>
+
+        <input
+            type="checkbox"
+            checked
+            name="present"
+            value="{{ id }}"
+        >
+
+        {{ roll_no }} - {{ name }}
+
+    </div>
+
+    <br>
+
+    {% endfor %}
+
+</form>
+
+</body>
+</html>

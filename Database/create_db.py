@@ -14,7 +14,16 @@ CREATE TABLE IF NOT EXISTS students (
     name TEXT NOT NULL
 )
 """)
-
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS attendance (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER,
+    attendance_date TEXT,
+    status TEXT,
+    FOREIGN KEY(student_id)
+    REFERENCES students(id)
+)
+""")
 conn.commit()
 conn.close()
 

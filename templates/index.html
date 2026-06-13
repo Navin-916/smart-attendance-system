@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Attendance System</title>
+</head>
+<body>
+
+    <h1>AI & DS Students</h1>
+
+    <table border="1">
+
+        <tr>
+            <th>Roll Number</th>
+            <th>Name</th>
+        </tr>
+
+        {% for roll_no, name in students %}
+
+        <tr>
+            <td>{{ roll_no }}</td>
+            <td>{{ name }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</body>
+</html>
