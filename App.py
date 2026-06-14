@@ -29,7 +29,7 @@ def attendance_page():
     conn.close()
 
     return render_template(
-        "attendance.html",
+        "attendance_v2.html",
         students=students
     )
 @app.route("/save-attendance", methods=["POST"])
