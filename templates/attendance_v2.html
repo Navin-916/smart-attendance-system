@@ -22,6 +22,24 @@
         padding: 20px;
     }
 
+    .student-card {
+    cursor: pointer;
+    transition: 0.2s;
+    }
+
+    .student-card:hover {
+        transform: scale(1.01);
+    }
+
+    .status-badge {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: #10B981;
+        font-size: 12px;
+    }
+
     .header {
         text-align: center;
         margin-bottom: 25px;
@@ -81,6 +99,11 @@
     .absent-card {
     border-left: 6px solid #EF4444;
     background: #2B1111;
+    }
+
+    .od-card {
+    border-left: 6px solid #3B82F6;
+    background: #0F1B33;
     }
 
     .student-info h3 {
@@ -151,6 +174,12 @@
         <h2 id="absentCount">0</h2>
         <p>Absent</p>
     </div>
+
+    <div class="card">
+    <h2 id="odCount">0</h2>
+    <p>OD</p>
+    </div>
+
 </div>
 <div class="card" style="margin-bottom:20px;">
 
@@ -162,8 +191,19 @@
 
 </div>
 
+<div class="card" style="margin-bottom:20px;">
+
+    <h2>OD Students</h2>
+
+    <ul id="odList">
+
+    </ul>
+
+</div>
+
 <input
     type="text"
+    style="display:none;"
     id="searchBox"
     class="search-box"
     placeholder="Search student..."
@@ -176,22 +216,32 @@
 
         {% for id, roll_no, name in students %}
 
-        <div class="student-card present-card">
+        <div class="student-card absent-card"
+            data-status="Absent"
+            onclick="cycleStatus(this)">
+            <input
+                type="hidden"
+                name="status_{{ id }}"
+                value="Absent"
+                class="status-input"
+            >
 
             <div class="student-info">
                 <h3>{{ name }}</h3>
                 <p>{{ roll_no }}</p>
+                <span class="status-badge">
+                    ABSENT
+                </span>
+                
             </div>
 
             <div>
                 <input
-                    type="checkbox"
-                    checked
-                    name="present"
+                    type="hidden"
+                    name="student_id"
                     value="{{ id }}"
-                    data-name="{{ name }}"
-                    onchange="updateCounts(); updateCard(this);"
-                >
+            >
+
             </div>
 
         </div>
@@ -211,36 +261,59 @@
 
 function updateCounts() {
 
-    const checkboxes =
-    document.querySelectorAll('input[name="present"]');
-
     let present = 0;
     let absent = 0;
+    let od = 0;
+
+    const cards =
+    document.querySelectorAll(".student-card");
 
     const absentList =
     document.getElementById("absentList");
 
+    const odList =
+    document.getElementById("odList");
+
     absentList.innerHTML = "";
+    odList.innerHTML = "";
 
-    checkboxes.forEach(cb => {
+    cards.forEach(card => {
 
-        if(cb.checked){
+        const status =
+        card.dataset.status;
+
+        const name =
+        card.querySelector("h3").innerText;
+
+        if(status === "Present") {
 
             present++;
-
         }
-        else{
+
+        else if(status === "OD") {
+
+            od++;
+
+            const li =
+            document.createElement("li");
+
+            li.innerText = name;
+
+            odList.appendChild(li);
+        }
+
+        else {
 
             absent++;
 
             const li =
             document.createElement("li");
 
-            li.innerText =
-            cb.dataset.name;
+            li.innerText = name;
 
             absentList.appendChild(li);
         }
+
     });
 
     document.getElementById("presentCount")
@@ -248,23 +321,9 @@ function updateCounts() {
 
     document.getElementById("absentCount")
     .innerText = absent;
-}
 
-function updateCard(checkbox) {
-
-    const card =
-    checkbox.closest(".student-card");
-
-    if (checkbox.checked) {
-
-        card.classList.remove("absent-card");
-        card.classList.add("present-card");
-
-    } else {
-
-        card.classList.remove("present-card");
-        card.classList.add("absent-card");
-    }
+    document.getElementById("odCount")
+    .innerText = od;
 }
 
 function searchStudents() {
@@ -290,11 +349,59 @@ function searchStudents() {
         }
     });
 }
+
+function cycleStatus(card) {
+
+    const badge =
+    card.querySelector(".status-badge");
+
+    let status =
+    card.dataset.status;
+
+    if(status === "Absent") {
+
+        status = "Present";
+
+        card.classList.remove("absent-card");
+        card.classList.add("present-card");
+
+        badge.innerText = "PRESENT";
+        badge.style.background = "#10B981";
+
+    }
+
+    else if(status === "Present") {
+
+        status = "OD";
+
+        card.classList.remove("present-card");
+        card.classList.add("od-card");
+
+        badge.innerText = "OD";
+        badge.style.background = "#3B82F6";
+
+    }
+
+    else {
+
+        status = "Absent";
+
+        card.classList.remove("od-card");
+        card.classList.add("absent-card");
+
+        badge.innerText = "ABSENT";
+        badge.style.background = "#EF4444";
+    }
+
+    card.dataset.status = status;
+    card.querySelector(".status-input").value = status;
+
+    updateCounts();
+}
+
 updateCounts();
 
-document
-.querySelectorAll('input[name="present"]')
-.forEach(cb => updateCard(cb));
+
 </script>
 
 </body>

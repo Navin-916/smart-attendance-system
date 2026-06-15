@@ -1,25 +1,19 @@
 import sqlite3
-import os
 
-db_path = os.path.join(
-    os.path.dirname(__file__),
-    "attendance.db"
-)
-
-conn = sqlite3.connect(db_path)
+conn = sqlite3.connect("Database/attendance.db")
 
 cursor = conn.cursor()
 
 cursor.execute("""
 SELECT *
 FROM attendance
+ORDER BY id DESC
+LIMIT 20
 """)
 
 rows = cursor.fetchall()
 
-print(f"Records Found: {len(rows)}")
-
-for row in rows[:10]:
+for row in rows:
     print(row)
 
 conn.close()

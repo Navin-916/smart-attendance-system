@@ -5,6 +5,7 @@ import os
 
 app = Flask(__name__)
 
+
 @app.route("/")
 def attendance_page():
 
@@ -15,7 +16,6 @@ def attendance_page():
     )
 
     conn = sqlite3.connect(db_path)
-
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -32,10 +32,10 @@ def attendance_page():
         "attendance_v2.html",
         students=students
     )
+
+
 @app.route("/save-attendance", methods=["POST"])
 def save_attendance():
-
-    selected_students = request.form.getlist("present")
 
     db_path = os.path.join(
         os.path.dirname(__file__),
@@ -44,7 +44,6 @@ def save_attendance():
     )
 
     conn = sqlite3.connect(db_path)
-
     cursor = conn.cursor()
 
     today = date.today().isoformat()
@@ -54,20 +53,21 @@ def save_attendance():
         (today,)
     )
 
-    cursor.execute(
-        "SELECT id FROM students"
-    )
+    cursor.execute("""
+    SELECT id
+    FROM students
+    """)
 
-    all_students = cursor.fetchall()
+    students = cursor.fetchall()
 
-    for student in all_students:
+    for student in students:
 
         student_id = student[0]
 
-        if str(student_id) in selected_students:
-            status = "Present"
-        else:
-            status = "Absent"
+        status = request.form.get(
+            f"status_{student_id}",
+            "Absent"
+        )
 
         cursor.execute("""
         INSERT INTO attendance
@@ -91,10 +91,17 @@ def save_attendance():
     <h1>Attendance Saved Successfully</h1>
 
     <a href="/report">
-    Generate Report
+        Generate Report
     </a>
-    """      
-   
+
+    <br><br>
+
+    <a href="/">
+        Back to Attendance
+    </a>
+    """
+
+
 @app.route("/report")
 def report():
 
@@ -105,27 +112,59 @@ def report():
     )
 
     conn = sqlite3.connect(db_path)
-
     cursor = conn.cursor()
 
     today = date.today().isoformat()
 
+    # Absent Students
     cursor.execute("""
-    SELECT
-        s.roll_no,
-        s.name
+    SELECT s.roll_no, s.name
     FROM attendance a
     JOIN students s
     ON a.student_id = s.id
     WHERE
         a.attendance_date = ?
         AND a.status = 'Absent'
+    ORDER BY s.roll_no
     """,
     (today,)
     )
 
     absent_students = cursor.fetchall()
 
+    # OD Students
+    cursor.execute("""
+    SELECT s.roll_no, s.name
+    FROM attendance a
+    JOIN students s
+    ON a.student_id = s.id
+    WHERE
+        a.attendance_date = ?
+        AND a.status = 'OD'
+    ORDER BY s.roll_no
+    """,
+    (today,)
+    )
+
+    od_students = cursor.fetchall()
+
+    # Present Count
+    cursor.execute("""
+    SELECT COUNT(*)
+    FROM attendance
+    WHERE
+        attendance_date = ?
+        AND status = 'Present'
+    """,
+    (today,)
+    )
+
+    present_count = cursor.fetchone()[0]
+
+    absent_count = len(absent_students)
+    od_count = len(od_students)
+
+    # Total Strength
     cursor.execute("""
     SELECT COUNT(*)
     FROM students
@@ -133,22 +172,25 @@ def report():
 
     total_strength = cursor.fetchone()[0]
 
-    absent_count = len(absent_students)
-
-    present_count = total_strength - absent_count
-
     report_text = f"""
 AI&DS Attendance Report
 
 Date: {today}
 
 Total Strength: {total_strength}
+
 Present: {present_count}
+OD: {od_count}
 Absent: {absent_count}
 
-Absent Students
+OD Students
 
 """
+
+    for roll_no, name in od_students:
+        report_text += f"{roll_no} - {name}\n"
+
+    report_text += "\nAbsent Students\n\n"
 
     for roll_no, name in absent_students:
         report_text += f"{roll_no} - {name}\n"
@@ -156,66 +198,86 @@ Absent Students
     conn.close()
 
     return f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Attendance Report</title>
+<!DOCTYPE html>
+<html>
+<head>
 
-        <style>
+<title>Attendance Report</title>
 
-        body {{
-            font-family: Arial, sans-serif;
-            padding: 30px;
-        }}
+<style>
 
-        button {{
-            padding: 10px 20px;
-            cursor: pointer;
-            margin-top: 15px;
-        }}
+body {{
+    font-family: Arial, sans-serif;
+    padding: 30px;
+}}
 
-        pre {{
-            background: #f4f4f4;
-            padding: 20px;
-            border-radius: 8px;
-        }}
+button {{
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-right: 10px;
+}}
 
-        </style>
+pre {{
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+}}
 
-    </head>
+</style>
 
-    <body>
+</head>
 
-        <h1>Attendance Report</h1>
+<body>
 
-        <pre id="report">{report_text}</pre>
+<h1>Attendance Report</h1>
 
-        <button onclick="copyReport()">
-            Copy Report
-        </button>
+<pre id="report">{report_text}</pre>
 
-        <br><br>
+<button onclick="copyReport()">
+    Copy Report
+</button>
 
-        <a href="/">
-            Back to Attendance Page
-        </a>
+<button onclick="shareWhatsApp()">
+    Share on WhatsApp
+</button>
 
-        <script>
+<br><br>
 
-        function copyReport() {{
+<a href="/">
+    Back to Attendance Page
+</a>
 
-            const text =
-            document.getElementById("report").innerText;
+<script>
 
-            navigator.clipboard.writeText(text);
+function copyReport() {{
 
-            alert("Report Copied Successfully!");
-        }}
+    const text =
+    document.getElementById("report").innerText;
 
-        </script>
+    navigator.clipboard.writeText(text);
 
-    </body>
-    </html>
-    """
+    alert("Report Copied Successfully!");
+}}
+
+function shareWhatsApp() {{
+
+    const text =
+    document.getElementById("report").innerText;
+
+    window.open(
+        "https://wa.me/?text=" +
+        encodeURIComponent(text)
+    );
+}}
+
+</script>
+
+</body>
+</html>
+"""
+
+
 if __name__ == "__main__":
     app.run(debug=True)
