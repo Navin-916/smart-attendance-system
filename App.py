@@ -7,7 +7,11 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def attendance_page():
+def home():
+
+    return render_template(
+        "home.html"
+    )
 
     db_path = os.path.join(
         os.path.dirname(__file__),

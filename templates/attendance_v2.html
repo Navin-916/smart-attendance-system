@@ -156,7 +156,8 @@
 ```
 <div class="header">
     <h1>Smart Attendance System</h1>
-    <p>AI & DS Attendance Dashboard</p>
+    <h2>Section {{ section }}</h2>
+    <p>AI & DS {{ section }} Attendance Dashboard</p>
 </div>
 
 <div class="stats">
@@ -212,6 +213,12 @@
 
 <form method="POST" action="/save-attendance">
 
+    <input
+        type="hidden"
+        name="section"
+        value="{{ section }}"
+    >
+
     <div class="student-container" id="studentContainer">
 
         {% for id, roll_no, name in students %}
@@ -255,9 +262,16 @@
     </button>
     <br><br>
 
-<a href="/history">
+<a href="/history/{{ section }}">
     <button type="button" class="save-btn">
         Attendance History
+    </button>
+</a>
+<br><br>
+
+<a href="/">
+    <button type="button" class="save-btn">
+        Change Section
     </button>
 </a>
 

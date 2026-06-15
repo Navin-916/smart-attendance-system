@@ -25,13 +25,20 @@ a{
     text-decoration:none;
 }
 
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<h1>Attendance History</h1>
+<h1>Attendance History - Section {{ section }}</h1>
 
 {% for date, present, od, absent in history_data %}
 
@@ -45,7 +52,7 @@ a{
 
     <p>Absent: {{ absent }}</p>
 
-    <a href="/report/{{ date }}">
+    <a href="/report/{{ section }}/{{ date }}">
         View Report
     </a>
 
@@ -55,8 +62,18 @@ a{
 
 <br>
 
+<a href="/section/{{ section }}">
+    <button>
+        Back to Attendance
+    </button>
+</a>
+
+<br><br>
+
 <a href="/">
-    Back to Attendance
+    <button>
+        Change Section
+    </button>
 </a>
 
 </body>
