@@ -221,15 +221,15 @@
 
     <div class="student-container" id="studentContainer">
 
-        {% for id, roll_no, name in students %}
+        {% for id, roll_no, name, status in students %}
 
         <div class="student-card absent-card"
-            data-status="Absent"
+            data-status="{{ status }}"
             onclick="cycleStatus(this)">
             <input
                 type="hidden"
                 name="status_{{ id }}"
-                value="Absent"
+                value="{{ status }}"
                 class="status-input"
             >
 
@@ -252,6 +252,11 @@
                      type="hidden"
                      name="section"
                     value="{{ section }}"
+                >
+                <input
+                    type="hidden"
+                    name="attendance_date"
+                    value="{{ attendance_date }}"
                 >
             </div>
 
@@ -424,6 +429,32 @@ function cycleStatus(card) {
     updateCounts();
 }
 
+document.querySelectorAll(".student-card")
+.forEach(card => {
+
+    let status = card.dataset.status;
+
+    let badge =
+    card.querySelector(".status-badge");
+
+    if(status === "Present") {
+
+        card.classList.remove("absent-card");
+        card.classList.add("present-card");
+
+        badge.innerText = "PRESENT";
+        badge.style.background = "#10B981";
+    }
+
+    else if(status === "OD") {
+
+        card.classList.remove("absent-card");
+        card.classList.add("od-card");
+
+        badge.innerText = "OD";
+        badge.style.background = "#3B82F6";
+    }
+});
 updateCounts();
 
 

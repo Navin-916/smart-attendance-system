@@ -8,9 +8,36 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+    return render_template("home.html")
+@app.route("/section/<section>")
+def attendance_page(section):
+
+    db_path = os.path.join(
+        os.path.dirname(__file__),
+        "Database",
+        "attendance.db"
+    )
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id, roll_no, name
+    FROM students
+    WHERE section = ?
+    ORDER BY roll_no
+    """,
+    (section,)
+    )
+
+    students = cursor.fetchall()
+
+    conn.close()
 
     return render_template(
-        "home.html"
+        "attendance_v2.html",
+        students=students,
+        section=section
     )
 
     db_path = os.path.join(
@@ -37,7 +64,6 @@ def home():
         students=students
     )
 
-
 @app.route("/save-attendance", methods=["POST"])
 def save_attendance():
 
@@ -50,17 +76,29 @@ def save_attendance():
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
-    today = date.today().isoformat()
+    today = request.form.get(
+    "attendance_date",
+    date.today().isoformat()
+    )
+
+    section = request.form.get("section")
 
     cursor.execute(
-        "DELETE FROM attendance WHERE attendance_date = ?",
-        (today,)
+        """
+        DELETE FROM attendance
+        WHERE attendance_date = ?
+        AND section = ?
+        """,
+        (today, section)
     )
 
     cursor.execute("""
     SELECT id
     FROM students
-    """)
+    WHERE section = ?
+    """,
+    (section,)
+    )
 
     students = cursor.fetchall()
 
@@ -78,35 +116,36 @@ def save_attendance():
         (
             student_id,
             attendance_date,
-            status
+            status,
+            section
         )
-        VALUES (?, ?, ?)
+        VALUES (?, ?, ?, ?)
         """,
         (
             student_id,
             today,
-            status
+            status,
+            section
         ))
 
     conn.commit()
     conn.close()
 
-    return """
+    return f"""
     <h1>Attendance Saved Successfully</h1>
 
-    <a href="/report">
+    <a href="/report/{section}">
         Generate Report
     </a>
 
     <br><br>
 
-    <a href="/">
+    <a href="/section/{section}">
         Back to Attendance
     </a>
     """
-
-@app.route("/history")
-def history():
+@app.route("/history/<section>")
+def history(section):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
@@ -124,9 +163,12 @@ def history():
         COUNT(CASE WHEN status='OD' THEN 1 END),
         COUNT(CASE WHEN status='Absent' THEN 1 END)
     FROM attendance
+    WHERE section = ?
     GROUP BY attendance_date
     ORDER BY attendance_date DESC
-    """)
+    """,
+    (section,)
+    )
 
     history_data = cursor.fetchall()
 
@@ -134,12 +176,12 @@ def history():
 
     return render_template(
         "history.html",
-        history_data=history_data
+        history_data=history_data,
+        section=section
     )
 
-
-@app.route("/report")
-def report():
+@app.route("/report/<section>")
+def report(section):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
@@ -161,9 +203,10 @@ def report():
     WHERE
         a.attendance_date = ?
         AND a.status = 'Absent'
+        AND a.section = ?
     ORDER BY s.roll_no
     """,
-    (today,)
+    (today, section)
     )
 
     absent_students = cursor.fetchall()
@@ -177,9 +220,10 @@ def report():
     WHERE
         a.attendance_date = ?
         AND a.status = 'OD'
+        AND a.section = ?
     ORDER BY s.roll_no
     """,
-    (today,)
+    (today, section)
     )
 
     od_students = cursor.fetchall()
@@ -191,8 +235,9 @@ def report():
     WHERE
         attendance_date = ?
         AND status = 'Present'
+        AND section = ?
     """,
-    (today,)
+    (today, section)
     )
 
     present_count = cursor.fetchone()[0]
@@ -204,12 +249,15 @@ def report():
     cursor.execute("""
     SELECT COUNT(*)
     FROM students
-    """)
+    WHERE section = ?
+    """,
+    (section,)
+    )
 
     total_strength = cursor.fetchone()[0]
 
     report_text = f"""
-AI&DS Attendance Report
+AI&DS {section} Attendance Report
 
 Date: {today}
 
@@ -267,7 +315,7 @@ pre {{
 
 <body>
 
-<h1>Attendance Report</h1>
+<h1>Attendance Report - Section {section}</h1>
 
 <pre id="report">{report_text}</pre>
 
@@ -279,9 +327,13 @@ pre {{
     Share on WhatsApp
 </button>
 
+<a href="/section/{section}">
+    <button>Edit Today's Attendance</button>
+</a>
+
 <br><br>
 
-<a href="/">
+<a href="/section/{section}">
     Back to Attendance Page
 </a>
 
@@ -313,8 +365,8 @@ function shareWhatsApp() {{
 </body>
 </html>
 """
-@app.route("/report/<attendance_date>")
-def view_old_report(attendance_date):
+@app.route("/report/<section>/<attendance_date>")
+def view_old_report(section, attendance_date):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
@@ -334,9 +386,10 @@ def view_old_report(attendance_date):
     WHERE
         a.attendance_date = ?
         AND a.status = 'Absent'
+        AND a.section = ?
     ORDER BY s.roll_no
     """,
-    (attendance_date,)
+    (attendance_date, section)
     )
 
     absent_students = cursor.fetchall()
@@ -350,9 +403,10 @@ def view_old_report(attendance_date):
     WHERE
         a.attendance_date = ?
         AND a.status = 'OD'
+        AND a.section = ?
     ORDER BY s.roll_no
     """,
-    (attendance_date,)
+    (attendance_date, section)
     )
 
     od_students = cursor.fetchall()
@@ -364,8 +418,9 @@ def view_old_report(attendance_date):
     WHERE
         attendance_date = ?
         AND status = 'Present'
+        AND section = ?
     """,
-    (attendance_date,)
+    (attendance_date, section)
     )
 
     present_count = cursor.fetchone()[0]
@@ -377,12 +432,15 @@ def view_old_report(attendance_date):
     cursor.execute("""
     SELECT COUNT(*)
     FROM students
-    """)
+    WHERE section = ?
+    """,
+    (section,)
+    )
 
     total_strength = cursor.fetchone()[0]
 
     report_text = f"""
-AI&DS Attendance Report
+AI&DS {section} Attendance Report
 
 Date: {attendance_date}
 
@@ -411,40 +469,94 @@ OD Students
 <html>
 <head>
 
-    <title>Attendance Report</title>
+<title>Attendance Report</title>
 
-    <style>
+<style>
 
-    body {{
-        font-family: Arial, sans-serif;
-        padding: 30px;
-    }}
+body {{
+    font-family: Arial, sans-serif;
+    padding: 30px;
+}}
 
-    pre {{
-        background: #f4f4f4;
-        padding: 20px;
-        border-radius: 8px;
-        white-space: pre-wrap;
-    }}
+pre {{
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+}}
 
-    </style>
+button {{
+    padding: 10px 20px;
+    cursor: pointer;
+}}
+
+</style>
 
 </head>
 
 <body>
 
-    <h1>Attendance Report</h1>
+<h1>Attendance Report - Section {section}</h1>
 
-    <pre>{report_text}</pre>
+<pre>{report_text}</pre>
 
-    <br>
+<br>
 
-    <a href="/history">
+<a href="/edit/{section}/{attendance_date}">
+    <button>
+        Edit Attendance
+    </button>
+</a>
+
+<br><br>
+<a href="/history/{section}">
+    <button>
         Back to History
-    </a>
+    </button>
+</a>
 
 </body>
 </html>
 """
+@app.route("/edit/<section>/<attendance_date>")
+def edit_attendance(section, attendance_date):
+
+    db_path = os.path.join(
+        os.path.dirname(__file__),
+        "Database",
+        "attendance.db"
+    )
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        s.id,
+        s.roll_no,
+        s.name,
+        a.status
+    FROM students s
+    LEFT JOIN attendance a
+    ON s.id = a.student_id
+    WHERE
+        s.section = ?
+        AND a.attendance_date = ?
+    ORDER BY s.roll_no
+    """,
+    (section, attendance_date)
+    )
+
+    students = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "edit_attendance.html",
+        students=students,
+        section=section,
+        attendance_date=attendance_date
+    )
+
 if __name__ == "__main__":
     app.run(debug=True)
