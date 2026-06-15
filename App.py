@@ -101,6 +101,38 @@ def save_attendance():
     </a>
     """
 
+@app.route("/history")
+def history():
+
+    db_path = os.path.join(
+        os.path.dirname(__file__),
+        "Database",
+        "attendance.db"
+    )
+
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        attendance_date,
+        COUNT(CASE WHEN status='Present' THEN 1 END),
+        COUNT(CASE WHEN status='OD' THEN 1 END),
+        COUNT(CASE WHEN status='Absent' THEN 1 END)
+    FROM attendance
+    GROUP BY attendance_date
+    ORDER BY attendance_date DESC
+    """)
+
+    history_data = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "history.html",
+        history_data=history_data
+    )
+
 
 @app.route("/report")
 def report():
@@ -277,7 +309,138 @@ function shareWhatsApp() {{
 </body>
 </html>
 """
+@app.route("/report/<attendance_date>")
+def view_old_report(attendance_date):
 
+    db_path = os.path.join(
+        os.path.dirname(__file__),
+        "Database",
+        "attendance.db"
+    )
 
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    # Absent Students
+    cursor.execute("""
+    SELECT s.roll_no, s.name
+    FROM attendance a
+    JOIN students s
+    ON a.student_id = s.id
+    WHERE
+        a.attendance_date = ?
+        AND a.status = 'Absent'
+    ORDER BY s.roll_no
+    """,
+    (attendance_date,)
+    )
+
+    absent_students = cursor.fetchall()
+
+    # OD Students
+    cursor.execute("""
+    SELECT s.roll_no, s.name
+    FROM attendance a
+    JOIN students s
+    ON a.student_id = s.id
+    WHERE
+        a.attendance_date = ?
+        AND a.status = 'OD'
+    ORDER BY s.roll_no
+    """,
+    (attendance_date,)
+    )
+
+    od_students = cursor.fetchall()
+
+    # Present Count
+    cursor.execute("""
+    SELECT COUNT(*)
+    FROM attendance
+    WHERE
+        attendance_date = ?
+        AND status = 'Present'
+    """,
+    (attendance_date,)
+    )
+
+    present_count = cursor.fetchone()[0]
+
+    absent_count = len(absent_students)
+    od_count = len(od_students)
+
+    # Total Strength
+    cursor.execute("""
+    SELECT COUNT(*)
+    FROM students
+    """)
+
+    total_strength = cursor.fetchone()[0]
+
+    report_text = f"""
+AI&DS Attendance Report
+
+Date: {attendance_date}
+
+Total Strength: {total_strength}
+
+Present: {present_count}
+OD: {od_count}
+Absent: {absent_count}
+
+OD Students
+
+"""
+
+    for roll_no, name in od_students:
+        report_text += f"{roll_no} - {name}\n"
+
+    report_text += "\nAbsent Students\n\n"
+
+    for roll_no, name in absent_students:
+        report_text += f"{roll_no} - {name}\n"
+
+    conn.close()
+
+    return f"""
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Attendance Report</title>
+
+    <style>
+
+    body {{
+        font-family: Arial, sans-serif;
+        padding: 30px;
+    }}
+
+    pre {{
+        background: #f4f4f4;
+        padding: 20px;
+        border-radius: 8px;
+        white-space: pre-wrap;
+    }}
+
+    </style>
+
+</head>
+
+<body>
+
+    <h1>Attendance Report</h1>
+
+    <pre>{report_text}</pre>
+
+    <br>
+
+    <a href="/history">
+        Back to History
+    </a>
+
+</body>
+</html>
+"""
 if __name__ == "__main__":
     app.run(debug=True)

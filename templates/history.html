@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Attendance History</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#111827;
+    color:white;
+    padding:20px;
+}
+
+.card{
+    background:#1F2937;
+    padding:20px;
+    margin-bottom:15px;
+    border-radius:10px;
+}
+
+a{
+    color:#60A5FA;
+    text-decoration:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Attendance History</h1>
+
+{% for date, present, od, absent in history_data %}
+
+<div class="card">
+
+    <h3>{{ date }}</h3>
+
+    <p>Present: {{ present }}</p>
+
+    <p>OD: {{ od }}</p>
+
+    <p>Absent: {{ absent }}</p>
+
+    <a href="/report/{{ date }}">
+        View Report
+    </a>
+
+</div>
+
+{% endfor %}
+
+<br>
+
+<a href="/">
+    Back to Attendance
+</a>
+
+</body>
+</html>
