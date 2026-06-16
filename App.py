@@ -65,7 +65,10 @@ def attendance_page(section):
     return render_template(
         "attendance_v2.html",
         students=students,
-        section=section
+        section=section,
+        today=date.today().strftime(
+            "%A, %d %B %Y"
+)
     )
 
     db_path = os.path.join(
@@ -343,7 +346,31 @@ pre {{
 
 <body>
 
-<h1>Attendance Report - Section {section}</h1>
+<h1>Attendance Report</h1>
+
+<div class="stats">
+
+    <div class="card">
+        <h2>{total_strength}</h2>
+        <p>Total</p>
+    </div>
+
+    <div class="card">
+        <h2>{present_count}</h2>
+        <p>Present</p>
+    </div>
+
+    <div class="card">
+        <h2>{od_count}</h2>
+        <p>OD</p>
+    </div>
+
+    <div class="card">
+        <h2>{absent_count}</h2>
+        <p>Absent</p>
+    </div>
+
+</div>
 
 <pre id="report">{report_text}</pre>
 
