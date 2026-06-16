@@ -44,7 +44,7 @@ def attendance_page(section):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
@@ -79,7 +79,7 @@ def save_attendance():
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
@@ -147,7 +147,7 @@ def history(section):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
@@ -183,7 +183,7 @@ def report(section):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
@@ -472,7 +472,7 @@ def view_old_report(section, attendance_date):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
@@ -716,7 +716,7 @@ def edit_attendance(section, attendance_date):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "database",
+        "Database",
         "attendance.db"
     )
 
