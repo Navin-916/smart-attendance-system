@@ -5,8 +5,8 @@ import os
 
 app = Flask(__name__)
 USERS = {
-    "0": {
-        "password": "0",
+    "AIDS_A": {
+        "password": "AIDSA2026",
         "section": "A"
     },
     "AIDS_B": {
@@ -716,7 +716,7 @@ def edit_attendance(section, attendance_date):
 
     db_path = os.path.join(
         os.path.dirname(__file__),
-        "Database",
+        "database",
         "attendance.db"
     )
 
@@ -753,4 +753,4 @@ def edit_attendance(section, attendance_date):
     )
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
