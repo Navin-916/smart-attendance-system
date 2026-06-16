@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, redirect
-from flask import Flask, render_template, request
 from datetime import date
 import sqlite3
 import os
@@ -29,7 +28,10 @@ def login():
 
             return redirect(f"/section/{section}")
 
-        return "Invalid Login"
+        return """
+            <h2>Invalid Login</h2>
+            <a href="/login">Try Again</a>
+            """
 
     return render_template("login.html")
 
@@ -71,29 +73,6 @@ def attendance_page(section):
 )
     )
 
-    db_path = os.path.join(
-        os.path.dirname(__file__),
-        "Database",
-        "attendance.db"
-    )
-
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    cursor.execute("""
-    SELECT id, roll_no, name
-    FROM students
-    ORDER BY roll_no
-    """)
-
-    students = cursor.fetchall()
-
-    conn.close()
-
-    return render_template(
-        "attendance_v2.html",
-        students=students
-    )
 
 @app.route("/save-attendance", methods=["POST"])
 def save_attendance():
@@ -162,19 +141,7 @@ def save_attendance():
     conn.commit()
     conn.close()
 
-    return f"""
-    <h1>Attendance Saved Successfully</h1>
-
-    <a href="/report/{section}">
-        Generate Report
-    </a>
-
-    <br><br>
-
-    <a href="/section/{section}">
-        Back to Attendance
-    </a>
-    """
+    return redirect(f"/report/{section}")
 @app.route("/history/<section>")
 def history(section):
 
@@ -322,8 +289,7 @@ OD Students
 
 <style>
 
-body{
-
+body{{
     background:
     linear-gradient(
         135deg,
@@ -336,22 +302,17 @@ body{
     font-family:Arial,sans-serif;
 
     padding:30px;
-}
+}}
 
-h1{
-
+h1{{
     text-align:center;
 
     color:#10B981;
 
     margin-bottom:25px;
+}}
 
-    text-shadow:
-    0 0 20px rgba(16,185,129,0.25);
-}
-
-.stats{
-
+.stats{{
     display:flex;
 
     gap:15px;
@@ -359,10 +320,9 @@ h1{
     flex-wrap:wrap;
 
     margin-bottom:25px;
-}
+}}
 
-.card{
-
+.card{{
     flex:1;
 
     min-width:180px;
@@ -376,24 +336,15 @@ h1{
     text-align:center;
 
     border:1px solid rgba(255,255,255,0.05);
-}
+}}
 
-.card h2{
-
+.card h2{{
     color:#10B981;
 
     font-size:42px;
+}}
 
-    margin-bottom:10px;
-}
-
-.card p{
-
-    color:#94A3B8;
-}
-
-pre{
-
+pre{{
     background:#151515;
 
     color:white;
@@ -405,12 +356,9 @@ pre{
     border:1px solid rgba(255,255,255,0.05);
 
     white-space:pre-wrap;
+}}
 
-    line-height:1.7;
-}
-
-button{
-
+button{{
     padding:14px 20px;
 
     border:none;
@@ -421,24 +369,14 @@ button{
 
     color:white;
 
-    font-weight:600;
-
-    margin-top:15px;
-
-    margin-right:10px;
-
     background:
     linear-gradient(
         135deg,
         #059669,
         #10B981
     );
-}
+}}
 
-button:hover{
-
-    opacity:0.9;
-}
 </style>
 
 
@@ -482,7 +420,7 @@ button:hover{
     Share on WhatsApp
 </button>
 
-<a href="/section/{section}">
+<a href="/edit/{section}/{today}">
     <button>Edit Today's Attendance</button>
 </a>
 
@@ -637,21 +575,92 @@ OD Students
 
 <style>
 
-body {{
-    font-family: Arial, sans-serif;
-    padding: 30px;
+body{{
+    background:
+    linear-gradient(
+        135deg,
+        #0A0A0A,
+        #111111
+    );
+
+    color:white;
+
+    font-family:Arial,sans-serif;
+
+    padding:30px;
 }}
 
-pre {{
-    background: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    white-space: pre-wrap;
+h1{{
+    text-align:center;
+
+    color:#10B981;
+
+    margin-bottom:25px;
 }}
 
-button {{
-    padding: 10px 20px;
-    cursor: pointer;
+.stats{{
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:25px;
+}}
+
+.card{{
+    flex:1;
+
+    min-width:180px;
+
+    background:#151515;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    text-align:center;
+
+    border:1px solid rgba(255,255,255,0.05);
+}}
+
+.card h2{{
+    color:#10B981;
+
+    font-size:42px;
+}}
+
+pre{{
+    background:#151515;
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,0.05);
+
+    white-space:pre-wrap;
+}}
+
+button{{
+    padding:14px 20px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    color:white;
+
+    background:
+    linear-gradient(
+        135deg,
+        #059669,
+        #10B981
+    );
 }}
 
 </style>
@@ -660,28 +669,48 @@ button {{
 
 <body>
 
-<h1>Attendance Report - Section {section}</h1>
+<h1>📋 Attendance Report</h1>
+
+<div class="stats">
+
+    <div class="card">
+        <h2>{total_strength}</h2>
+        <p>Total</p>
+    </div>
+
+    <div class="card">
+        <h2>{present_count}</h2>
+        <p>Present</p>
+    </div>
+
+    <div class="card">
+        <h2>{od_count}</h2>
+        <p>OD</p>
+    </div>
+
+    <div class="card">
+        <h2>{absent_count}</h2>
+        <p>Absent</p>
+    </div>
+
+</div>
 
 <pre>{report_text}</pre>
 
 <br>
 
 <a href="/edit/{section}/{attendance_date}">
-    <button>
-        Edit Attendance
-    </button>
+    <button>Edit Attendance</button>
 </a>
 
-<br><br>
 <a href="/history/{section}">
-    <button>
-        Back to History
-    </button>
+    <button>Back to History</button>
 </a>
 
 </body>
 </html>
 """
+
 @app.route("/edit/<section>/<attendance_date>")
 def edit_attendance(section, attendance_date):
 
@@ -699,16 +728,17 @@ def edit_attendance(section, attendance_date):
         s.id,
         s.roll_no,
         s.name,
-        a.status
+        COALESCE(a.status, 'Absent')
     FROM students s
     LEFT JOIN attendance a
     ON s.id = a.student_id
+    AND a.attendance_date = ?
+    AND a.section = ?
     WHERE
         s.section = ?
-        AND a.attendance_date = ?
     ORDER BY s.roll_no
     """,
-    (section, attendance_date)
+    (attendance_date, section, section)
     )
 
     students = cursor.fetchall()

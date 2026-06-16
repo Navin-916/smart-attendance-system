@@ -42,37 +42,55 @@
         transform: scale(1.01);
     }
 
-    .status-badge {
+    .status-badge{
 
-    display: inline-block;
+        display:inline-block;
 
-    margin-top: 8px;
+        margin-top:8px;
 
-    padding: 6px 12px;
+        padding:8px 16px;
 
-    border-radius: 20px;
+        border-radius:999px;
 
-    font-size: 12px;
+        font-size:12px;
 
-    font-weight: 600;
+        font-weight:700;
 
-    letter-spacing: 0.5px;
+        letter-spacing:1px;
+
+        background:#374151;
+
+        color:white;
     }
     @keyframes fadeIn {
 
-    from {
+        from {
 
-        opacity: 0;
+            opacity: 0;
 
-        transform: translateY(10px);
+            transform: translateY(10px);
+        }
+
+        to {
+
+            opacity: 1;
+
+            transform: translateY(0);
+        }
     }
+    @keyframes pulseGlow{
 
-    to {
+        0%{
+            transform:scale(1);
+        }
 
-        opacity: 1;
+        50%{
+            transform:scale(1.03);
+        }
 
-        transform: translateY(0);
-    }
+        100%{
+            transform:scale(1);
+        }
     }
     .student-info h3 {
 
@@ -264,19 +282,28 @@
     .student-card,
     .status-badge{
 
-        transition: all 0.35s ease;
+        transition:
+        all 0.45s cubic-bezier(
+            0.22,
+            1,
+            0.36,
+            1
+        );
     }
-    .present-card {
-        border-left: 6px solid #10B981;
-    }
+        
+    .od-card{
 
+    border-left:6px solid #3B82F6;
 
+    background:
+    linear-gradient(
+        90deg,
+        rgba(59,130,246,0.15),
+        #171717
+    );
 
-    .od-card {
-
-    border-left: 6px solid #3B82F6;
-
-    background: #111827;
+    box-shadow:
+    0 0 25px rgba(59,130,246,0.08);
     }
     #absentList li,
     #odList li {
@@ -345,21 +372,34 @@
         box-shadow:
         0 10px 25px rgba(16,185,129,0.25);
     }
-    .present-card {
+    .present-card{
 
-    border-left: 6px solid #10B981;
-    }
-
-    .absent-card {
-
-    border-left: 6px solid #EF4444;
+    border-left:6px solid #10B981;
 
     background:
     linear-gradient(
         90deg,
-        rgba(239,68,68,0.12),
+        rgba(16,185,129,0.15),
         #171717
     );
+
+    box-shadow:
+    0 0 25px rgba(16,185,129,0.08);
+    }
+
+    .absent-card{
+
+    border-left:6px solid #374151;
+
+    background:
+    linear-gradient(
+        90deg,
+        rgba(55,65,81,0.15),
+        #171717
+    );
+
+    box-shadow:
+    0 0 25px rgba(55,65,81,0.08);
     }
     
     .card:hover{
@@ -520,7 +560,6 @@
     <button
         class="save-btn"
         type="submit"
-        onclick="return confirmSave()"
     >
         Save Attendance
     </button>
@@ -542,12 +581,6 @@
 ```
 
 <script>
-function confirmSave() {
-
-    return confirm(
-        "Save attendance for this section?"
-    );
-}
 function updateCounts() {
 
     let present = 0;
@@ -656,6 +689,7 @@ function cycleStatus(card) {
 
         badge.innerText = "PRESENT";
         badge.style.background = "#10B981";
+        badge.style.color = "#FFFFFF";
 
     }
 
@@ -668,6 +702,7 @@ function cycleStatus(card) {
 
         badge.innerText = "OD";
         badge.style.background = "#3B82F6";
+        badge.style.color = "#FFFFFF";
 
     }
 
@@ -679,7 +714,8 @@ function cycleStatus(card) {
         card.classList.add("absent-card");
 
         badge.innerText = "ABSENT";
-        badge.style.background = "#EF4444";
+        badge.style.background = "#374151";
+        badge.style.color = "#FFFFFF";
     }
 
     card.dataset.status = status;
@@ -687,7 +723,14 @@ function cycleStatus(card) {
 
     updateCounts();
 }
+card.style.animation =
+"pulseGlow 0.35s ease";
 
+setTimeout(() => {
+
+    card.style.animation = "";
+
+}, 350);
 updateCounts();
 
 

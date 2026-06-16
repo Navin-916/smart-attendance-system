@@ -47,11 +47,18 @@ body{
     max-width:900px;
 
     margin:auto;
+
+    display:grid;
+
+    gap:20px;
 }
 
 .card{
 
-    background:#151515;
+    background:
+    rgba(21,21,21,0.85);
+
+    backdrop-filter:blur(12px);
 
     padding:25px;
 
@@ -136,6 +143,13 @@ body{
 <div class="header">
 
     <h1>📚 Attendance History</h1>
+
+    <p style="
+    color:#94A3B8;
+    margin-top:10px;
+    ">
+    Section {{ section }}
+    </p>
 
 </div>
 
