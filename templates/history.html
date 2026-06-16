@@ -2,7 +2,18 @@
 <html>
 <head>
 
-<title>Attendance History</title>
+<h1>Attendance History</h1>
+{% if not history_data %}
+
+<div class="card">
+    <h3>No Attendance Records Found</h3>
+</div>
+
+{% endif %}
+
+<h3>
+    AI&DS Section {{ section }}
+</h3>
 
 <style>
 
@@ -32,6 +43,14 @@ button{
     cursor:pointer;
 }
 
+button{
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin-right:10px;
+}
+
 </style>
 
 </head>
@@ -52,9 +71,17 @@ button{
 
     <p>Absent: {{ absent }}</p>
 
+<div style="margin-top:10px;">
+
     <a href="/report/{{ section }}/{{ date }}">
-        View Report
+        <button>View Report</button>
     </a>
+
+    <a href="/edit/{{ section }}/{{ date }}">
+        <button>Edit</button>
+    </a>
+
+</div>
 
 </div>
 
@@ -75,6 +102,14 @@ button{
         Change Section
     </button>
 </a>
+<hr style="margin-top:30px;">
 
+<p style="
+    text-align:center;
+    color:#9CA3AF;
+    margin-top:15px;
+">
+    Smart Attendance Management System
+</p>
 </body>
 </html>

@@ -22,6 +22,15 @@
         padding: 20px;
     }
 
+    .stats{
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
+    background: #111827;
+    padding: 10px 0;
+    }
+
     .student-card {
     cursor: pointer;
     transition: 0.2s;
@@ -154,6 +163,7 @@
 <body>
 
 ```
+<div class="sticky-top"></div>
 <div class="header">
     <h1>Smart Attendance System</h1>
     <h2>Section {{ section }}</h2>
@@ -181,6 +191,7 @@
     <p>OD</p>
     </div>
 
+</div>
 </div>
 <div class="card" style="margin-bottom:20px;">
 
@@ -261,10 +272,13 @@
 
     </div>
 
-    <button class="save-btn" type="submit">
+    <button
+        class="save-btn"
+        type="submit"
+        onclick="return confirmSave()"
+    >
         Save Attendance
     </button>
-    <br><br>
 
 <a href="/history/{{ section }}">
     <button type="button" class="save-btn">
@@ -283,7 +297,12 @@
 ```
 
 <script>
+function confirmSave() {
 
+    return confirm(
+        "Save attendance for this section?"
+    );
+}
 function updateCounts() {
 
     let present = 0;

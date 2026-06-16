@@ -1,14 +1,42 @@
+from flask import Flask, render_template, request, redirect
 from flask import Flask, render_template, request
 from datetime import date
 import sqlite3
 import os
 
 app = Flask(__name__)
+USERS = {
+    "AIDS_A": {
+        "password": "AIDSA2026",
+        "section": "A"
+    },
+    "AIDS_B": {
+        "password": "AIDSB2026",
+        "section": "B"
+    }
+}
+@app.route("/login", methods=["GET", "POST"])
+def login():
 
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username in USERS and password == USERS[username]["password"]:
+
+            section = USERS[username]["section"]
+
+            return redirect(f"/section/{section}")
+
+        return "Invalid Login"
+
+    return render_template("login.html")
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+
+    return redirect("/login")
 @app.route("/section/<section>")
 def attendance_page(section):
 
