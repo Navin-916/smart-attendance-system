@@ -1,12 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Login Failed</title>
 
 <style>
 
-body{
+*{
     margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+
     min-height:100vh;
 
     display:flex;
@@ -20,52 +30,67 @@ body{
         #111111
     );
 
-    font-family:Arial,sans-serif;
+    color:white;
 }
 
 .card{
 
-    width:400px;
+    width:420px;
 
     background:#151515;
 
-    border-radius:24px;
+    border-radius:28px;
 
-    padding:40px;
+    padding:45px;
 
     text-align:center;
 
+    border:1px solid rgba(255,255,255,0.05);
+
     box-shadow:
-    0 20px 50px rgba(0,0,0,0.4);
+    0 20px 60px rgba(0,0,0,0.45);
+
+    animation:fadeIn 0.4s ease;
+}
+
+.icon{
+
+    font-size:70px;
+
+    margin-bottom:20px;
 }
 
 h1{
 
     color:#EF4444;
 
-    margin-bottom:15px;
+    margin-bottom:12px;
+
+    font-size:34px;
 }
 
 p{
 
     color:#94A3B8;
 
-    margin-bottom:25px;
+    line-height:1.6;
+
+    margin-bottom:30px;
 }
 
-a{
+.btn{
 
     display:inline-block;
 
-    padding:14px 22px;
+    padding:14px 28px;
+
+    border-radius:14px;
 
     text-decoration:none;
 
-    color:white;
-
     font-weight:600;
 
-    border-radius:12px;
+    color:white;
 
     background:
     linear-gradient(
@@ -73,6 +98,38 @@ a{
         #059669,
         #10B981
     );
+
+    transition:0.3s;
+}
+
+.btn:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:
+    0 10px 25px rgba(16,185,129,0.25);
+}
+
+@keyframes fadeIn{
+
+    from{
+        opacity:0;
+        transform:translateY(15px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+.footer{
+
+    margin-top:25px;
+
+    color:#6B7280;
+
+    font-size:13px;
 }
 
 </style>
@@ -82,15 +139,22 @@ a{
 
 <div class="card">
 
-    <h1>❌ Invalid Login</h1>
+    <div class="icon">🔒</div>
+
+    <h1>Access Denied</h1>
 
     <p>
-        Incorrect username or password.
+        The username or password you entered is incorrect.
+        Please verify your credentials and try again.
     </p>
 
-    <a href="/login">
-        Try Again
+    <a href="/login" class="btn">
+        Back to Login
     </a>
+
+    <div class="footer">
+        Smart Attendance System
+    </div>
 
 </div>
 
