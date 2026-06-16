@@ -28,10 +28,7 @@ def login():
 
             return redirect(f"/section/{section}")
 
-        return """
-            <h2>Invalid Login</h2>
-            <a href="/login">Try Again</a>
-            """
+        return render_template("invalid_login.html")
 
     return render_template("login.html")
 
