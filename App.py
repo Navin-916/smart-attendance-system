@@ -6,8 +6,8 @@ import os
 
 app = Flask(__name__)
 USERS = {
-    "AIDS_A": {
-        "password": "AIDSA2026",
+    "0": {
+        "password": "0",
         "section": "A"
     },
     "AIDS_B": {
@@ -319,34 +319,134 @@ OD Students
 
 <title>Attendance Report</title>
 
+
 <style>
 
-body {{
-    font-family: Arial, sans-serif;
-    padding: 30px;
-}}
+body{
 
-button {{
-    padding: 10px 20px;
-    cursor: pointer;
-    margin-top: 15px;
-    margin-right: 10px;
-}}
+    background:
+    linear-gradient(
+        135deg,
+        #0A0A0A,
+        #111111
+    );
 
-pre {{
-    background: #f4f4f4;
-    padding: 20px;
-    border-radius: 8px;
-    white-space: pre-wrap;
-}}
+    color:white;
 
+    font-family:Arial,sans-serif;
+
+    padding:30px;
+}
+
+h1{
+
+    text-align:center;
+
+    color:#10B981;
+
+    margin-bottom:25px;
+
+    text-shadow:
+    0 0 20px rgba(16,185,129,0.25);
+}
+
+.stats{
+
+    display:flex;
+
+    gap:15px;
+
+    flex-wrap:wrap;
+
+    margin-bottom:25px;
+}
+
+.card{
+
+    flex:1;
+
+    min-width:180px;
+
+    background:#151515;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    text-align:center;
+
+    border:1px solid rgba(255,255,255,0.05);
+}
+
+.card h2{
+
+    color:#10B981;
+
+    font-size:42px;
+
+    margin-bottom:10px;
+}
+
+.card p{
+
+    color:#94A3B8;
+}
+
+pre{
+
+    background:#151515;
+
+    color:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,0.05);
+
+    white-space:pre-wrap;
+
+    line-height:1.7;
+}
+
+button{
+
+    padding:14px 20px;
+
+    border:none;
+
+    border-radius:12px;
+
+    cursor:pointer;
+
+    color:white;
+
+    font-weight:600;
+
+    margin-top:15px;
+
+    margin-right:10px;
+
+    background:
+    linear-gradient(
+        135deg,
+        #059669,
+        #10B981
+    );
+}
+
+button:hover{
+
+    opacity:0.9;
+}
 </style>
+
 
 </head>
 
 <body>
 
-<h1>Attendance Report</h1>
+<h1>📋 Attendance Report</h1>
 
 <div class="stats">
 
@@ -388,8 +488,17 @@ pre {{
 
 <br><br>
 
-<a href="/section/{section}">
-    Back to Attendance Page
+<br><br>
+
+<a
+    href="/section/{section}"
+    style="
+        color:#10B981;
+        text-decoration:none;
+        font-weight:bold;
+    "
+>
+    ← Back to Attendance
 </a>
 
 <script>

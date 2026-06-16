@@ -1,54 +1,130 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 
-<h1>Attendance History</h1>
-{% if not history_data %}
-
-<div class="card">
-    <h3>No Attendance Records Found</h3>
-</div>
-
-{% endif %}
-
-<h3>
-    AI&DS Section {{ section }}
-</h3>
+<title>Attendance History</title>
 
 <style>
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
 body{
-    font-family: Arial, sans-serif;
-    background:#111827;
+
+    background:
+    linear-gradient(
+        135deg,
+        #0A0A0A,
+        #111111
+    );
+
     color:white;
-    padding:20px;
+
+    padding:30px;
+}
+
+.header{
+
+    text-align:center;
+
+    margin-bottom:30px;
+}
+
+.header h1{
+
+    color:#10B981;
+
+    font-size:40px;
+}
+
+.history-grid{
+
+    max-width:900px;
+
+    margin:auto;
 }
 
 .card{
-    background:#171717;
-    padding:20px;
-    margin-bottom:15px;
-    border-radius:10px;
+
+    background:#151515;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    border:1px solid rgba(255,255,255,0.05);
+
+    transition:0.3s;
 }
 
-a{
+.card:hover{
+
+    transform:translateY(-4px);
+
+    border-color:
+    rgba(16,185,129,0.3);
+}
+
+.date{
+
     color:#10B981;
+
+    font-size:22px;
+
+    margin-bottom:15px;
+}
+
+.card p{
+
+    margin-bottom:10px;
+}
+
+.view-btn{
+
+    display:block;
+
+    text-align:center;
+
+    padding:12px;
+
+    border-radius:12px;
+
     text-decoration:none;
+
+    color:white;
+
+    background:
+    linear-gradient(
+        135deg,
+        #059669,
+        #10B981
+    );
 }
 
-button{
-    padding:10px 20px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
+.back-btn{
 
-button{
-    padding:8px 15px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    margin-right:10px;
+    display:block;
+
+    width:250px;
+
+    margin:auto;
+
+    text-align:center;
+
+    padding:15px;
+
+    border-radius:15px;
+
+    background:#151515;
+
+    color:white;
+
+    text-decoration:none;
 }
 
 </style>
@@ -57,59 +133,52 @@ button{
 
 <body>
 
-<h1>Attendance History - Section {{ section }}</h1>
+<div class="header">
+
+    <h1>📚 Attendance History</h1>
+
+</div>
+
+<div class="history-grid">
 
 {% for date, present, od, absent in history_data %}
 
 <div class="card">
 
-    <h3>{{ date }}</h3>
+    <div class="date">
+        {{ date }}
+    </div>
 
-    <p>Present: {{ present }}</p>
+    <p>✅ Present : {{ present }}</p>
 
-    <p>OD: {{ od }}</p>
+    <p>🏢 OD : {{ od }}</p>
 
-    <p>Absent: {{ absent }}</p>
+    <p>❌ Absent : {{ absent }}</p>
 
-<div style="margin-top:10px;">
+    <br>
 
-    <a href="/report/{{ section }}/{{ date }}">
-        <button>View Report</button>
+    <a
+        class="view-btn"
+        href="/report/{{ section }}/{{ date }}"
+    >
+        View Report
     </a>
-
-    <a href="/edit/{{ section }}/{{ date }}">
-        <button>Edit</button>
-    </a>
-
-</div>
 
 </div>
 
 {% endfor %}
 
+</div>
+
 <br>
 
-<a href="/section/{{ section }}">
-    <button>
-        Back to Attendance
-    </button>
+<a
+    href="/section/{{ section }}"
+    class="back-btn"
+>
+    Back to Attendance
 </a>
 
-<br><br>
-
-<a href="/">
-    <button>
-        Change Section
-    </button>
-</a>
-<hr style="margin-top:30px;">
-
-<p style="
-    text-align:center;
-    color:#9CA3AF;
-    margin-top:15px;
-">
-    Smart Attendance Management System
-</p>
 </body>
 </html>
+
